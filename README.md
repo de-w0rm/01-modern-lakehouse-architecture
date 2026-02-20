@@ -219,3 +219,133 @@ Designed to model:
 This project demonstrates the ability to design and implement a modular, containerized lakehouse architecture using medallion modeling principles, incremental transformations, and automated data quality enforcement.
 
 The focus is not just on building pipelines, but on structuring a maintainable and scalable analytics platform.
+
+---
+
+## Design Trade-offs
+
+This architecture intentionally makes several pragmatic trade-offs to balance cost, complexity, and scalability.
+
+### 1. DuckDB Instead of Cloud Warehouse
+
+**Why:**
+- Zero infrastructure cost
+- Local-first development
+- Native Parquet support
+- Fast analytical performance
+
+**Trade-off:**
+- Not distributed
+- Not suitable for multi-user production workloads
+
+**Rationale:**
+The goal is to simulate architectural maturity without infrastructure overhead. The system is designed so that migration to Snowflake, BigQuery, or Databricks would require minimal refactoring.
+
+---
+
+### 2. ELT Instead of ETL
+
+**Why:**
+- Preserve raw data integrity in Bronze
+- Enable reproducibility and reprocessing
+- Push transformation logic into SQL (dbt)
+
+**Trade-off:**
+- Requires a performant query engine
+- Slightly more storage usage
+
+**Rationale:**
+Modern data platforms favor ELT to maximize auditability and flexibility.
+
+---
+
+### 3. Parquet as Storage Format
+
+**Why:**
+- Columnar storage
+- Compression efficiency
+- Partition pruning capability
+- Industry standard format
+
+**Trade-off:**
+- Requires schema discipline
+- Harder to manually inspect than CSV
+
+**Rationale:**
+Parquet enables efficient analytical workloads and aligns with lakehouse best practices.
+
+---
+
+### 4. Medallion Architecture (Bronze → Silver → Gold)
+
+**Why:**
+- Clear separation of concerns
+- Easier debugging and reprocessing
+- Business logic isolated from raw ingestion
+
+**Trade-off:**
+- More layers to maintain
+- Additional storage footprint
+
+**Rationale:**
+This pattern improves governance and long-term maintainability.
+
+---
+
+### 5. Incremental Modeling Strategy
+
+**Why:**
+- Avoid full-table rebuilds
+- Enable scalable growth
+- Simulate production warehouse behavior
+
+**Trade-off:**
+- Requires careful key design
+- Increased modeling complexity
+
+**Rationale:**
+Incremental models reflect real-world production constraints.
+
+---
+
+### 6. Local Orchestration via Makefile
+
+**Why:**
+- Simple reproducibility
+- Clear developer interface
+- No external scheduler dependency
+
+**Trade-off:**
+- Not production orchestration (e.g., Airflow/Prefect)
+
+**Rationale:**
+The focus is platform structure, not orchestration tooling.
+
+---
+
+### 7. Dockerized Environment
+
+**Why:**
+- Deterministic builds
+- Eliminates environment drift
+- Portable across machines
+
+**Trade-off:**
+- Slightly more setup overhead
+
+**Rationale:**
+Reproducibility is a core Data Platform principle.
+
+---
+
+### Scalability Path
+
+This architecture can evolve by:
+
+- Replacing DuckDB with a cloud warehouse
+- Moving Parquet storage to object storage (S3/GCS/Azure)
+- Adding orchestration (Airflow/Prefect)
+- Enabling CI/CD for automated deployments
+- Integrating observability tooling
+
+The repository is structured to allow these transitions with minimal redesign.
