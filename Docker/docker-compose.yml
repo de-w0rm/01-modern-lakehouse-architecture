@@ -1,0 +1,12 @@
+services:
+  lakehouse:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: modern_lakehouse
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      - PYTHONPATH=/app
+    tty: true
