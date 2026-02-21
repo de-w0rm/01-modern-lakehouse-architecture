@@ -1,6 +1,71 @@
-# DuckDB database
-lakehouse/*.duckdb
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+.env
+.venv/
+venv/
+ENV/
+env/
 
-# dbt artifacts
+# =========================
+# DuckDB / Lakehouse: 
+# Bronze/Silver/Gold Parquet files, they are not source code and can be regenerated from the source data. 
+# The repo represents architecture, not data snapshots
+# =========================
+lakehouse/*.duckdb
+lakehouse/**/*.duckdb
+lakehouse/**/*.parquet    
+
+
+# =========================
+# dbt
+# =========================
 dbt/**/target/
 dbt/**/logs/
+dbt/**/dbt_packages/
+dbt/**/compiled/
+dbt/**/manifest.json
+dbt/**/run_results.json
+
+# =========================
+# Docker
+# =========================
+*.log
+docker-compose.override.yml
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Coverage / Testing
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.bak
