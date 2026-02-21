@@ -1,6 +1,10 @@
-{{ config(materialized='table') }}
+{{ config(
+    materialized='incremental',
+    incremental_strategy='delete+insert',
+    unique_key='account_month_key'
+) }}
 
-with active_subs as (
+with subs as (
     select
         account_id,
         monthly_price,
@@ -9,26 +13,27 @@ with active_subs as (
     from {{ ref('silver_subscriptions') }}
 ),
 
-calendar as (
-    select distinct date_trunc('month', invoice_date) as month
+months as (
+    select distinct
+        cast(date_trunc('month', invoice_date) as date) as month
     from {{ ref('silver_invoices') }}
 ),
 
-mrr as (
+active_subs_by_month as (
     select
-        c.month,
+        m.month,
         s.account_id,
-        s.monthly_price as mrr
-    from calendar c
-    join active_subs s
-      on c.month between date_trunc('month', s.start_date)
-                     and date_trunc('month', s.end_date)
+        sum(s.monthly_price) as mrr
+    from months m
+    join subs s
+      on m.month between cast(date_trunc('month', s.start_date) as date)
+                     and cast(date_trunc('month', s.end_date) as date)
+    group by 1, 2
 )
 
 select
     month,
-    sum(mrr) as total_mrr,
-    count(distinct account_id) as active_accounts
-from mrr
-group by 1
-order by 1
+    account_id,
+    mrr,
+    cast(account_id as varchar) || '-' || cast(month as varchar) as account_month_key
+from active_subs_by_month
