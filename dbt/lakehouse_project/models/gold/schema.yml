@@ -38,3 +38,19 @@ models:
         tests:
           - not_null
           - unique
+          
+  - name: gold_mrr_monthly
+    description: "Account-level monthly recurring revenue (account_id x month)."
+    columns:
+      - name: month
+        tests: [not_null]
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_subscriptions')
+              field: account_id
+      - name: mrr
+        tests: [not_null]
+      - name: account_month_key
+        tests: [not_null, unique]
