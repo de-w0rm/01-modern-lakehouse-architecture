@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
+RUN pip install duckdb-cli
+
 # Copy repo (docker-compose will mount, but this keeps image usable standalone too)
 COPY . /app
 
