@@ -24,3 +24,31 @@ models:
               field: user_id
       - name: event_ts
         tests: [not_null]
+        
+  - name: silver_subscriptions
+    description: "Conformed subscriptions entity (1 row per subscription_id)."
+    columns:
+      - name: subscription_id
+        tests: [not_null, unique]
+      - name: account_id
+        tests: [not_null]
+      - name: monthly_price
+        tests: [not_null]
+
+  - name: silver_invoices
+    description: "Conformed invoices entity (1 row per invoice_id)."
+    columns:
+      - name: invoice_id
+        tests: [not_null, unique]
+      - name: subscription_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_subscriptions')
+              field: subscription_id
+      - name: account_id
+        tests: [not_null]
+      - name: invoice_date
+        tests: [not_null]
+      - name: amount
+        tests: [not_null]
