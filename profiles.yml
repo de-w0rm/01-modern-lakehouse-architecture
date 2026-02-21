@@ -1,0 +1,7 @@
+lakehouse_project:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /app/lakehouse/lakehouse.duckdb
+      threads: 4

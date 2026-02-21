@@ -44,3 +44,7 @@ full-pipeline:
 
 clean:
 	rm -rf dbt/target dbt/logs dbt/dbt_packages
+
+.PHONY: bootstrap
+bootstrap:
+	docker compose run --rm lakehouse bash -lc "mkdir -p lakehouse lakehouse/bronze lakehouse/silver lakehouse/gold"

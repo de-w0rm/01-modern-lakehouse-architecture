@@ -1,0 +1,6 @@
+# DuckDB database
+lakehouse/*.duckdb
+
+# dbt artifacts
+dbt/**/target/
+dbt/**/logs/
