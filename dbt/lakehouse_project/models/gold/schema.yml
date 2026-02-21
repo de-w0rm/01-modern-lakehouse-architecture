@@ -54,3 +54,40 @@ models:
         tests: [not_null]
       - name: account_month_key
         tests: [not_null, unique]
+
+  - name: gold_nrr_bridge_monthly
+    description: "NRR bridge components by account and month derived from gold_mrr_monthly."
+    columns:
+      - name: account_month_key
+        tests:
+          - unique
+          - not_null
+      - name: month
+        tests:
+          - not_null
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_users')
+              field: account_id
+      - name: starting_mrr
+        tests:
+          - not_null
+      - name: ending_mrr
+        tests:
+          - not_null
+
+  - name: gold_nrr_monthly
+    description: "Portfolio-level NRR/GRR rollup by month."
+    columns:
+      - name: month
+        tests:
+          - unique
+          - not_null
+      - name: starting_mrr_total
+        tests:
+          - not_null
+      - name: ending_mrr_for_nrr_total
+        tests:
+          - not_null
