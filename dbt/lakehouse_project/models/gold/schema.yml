@@ -91,3 +91,41 @@ models:
       - name: ending_mrr_for_nrr_total
         tests:
           - not_null
+
+  - name: gold_arr_monthly
+    description: "ARR by account and month derived from gold_mrr_monthly (ARR = MRR * 12)."
+    columns:
+      - name: account_month_key
+        tests: [unique, not_null]
+      - name: month
+        tests: [not_null]
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_users')
+              field: account_id
+      - name: arr
+        tests: [not_null]
+
+  - name: gold_arr_monthly_total
+    description: "Portfolio ARR rollup by month."
+    columns:
+      - name: month
+        tests: [unique, not_null]
+      - name: arr_total
+        tests: [not_null]
+
+  - name: gold_nrr_cohort_monthly
+    description: "Cohort NRR curve by cohort_month and month (accounts grouped by first paid month)."
+    columns:
+      - name: cohort_period_key
+        tests: [unique, not_null]
+      - name: cohort_month
+        tests: [not_null]
+      - name: month
+        tests: [not_null]
+      - name: cohort_start_mrr
+        tests: [not_null]
+      - name: cohort_current_mrr
+        tests: [not_null]
