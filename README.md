@@ -3,7 +3,7 @@ DuckDB + dbt-core + Python + Docker
 
 A production-style Modern Lakehouse designed to simulate how a Data Platform team at a Series C SaaS company would structure analytics infrastructure using cost-efficient, local-first tooling.
 
-This project implements a Medallion Architecture (Bronze → Silver → Gold) with reproducibility, data quality enforcement, and incremental-ready modeling.
+This project implements a Medallion Architecture (Bronze → Silver → Gold) with reproducibility, data quality enforcement, incremental-ready modeling, SaaS revenue analytics, and CI-based validation.
 
 ---
 
@@ -71,7 +71,7 @@ flowchart LR
 | Parquet | Columnar storage format |
 | Docker | Reproducible environment |
 | Makefile | Developer experience orchestration |
-| GitHub Actions | CI quality gates (planned) |
+| GitHub Actions | CI quality gates via automated dbt build |
 
 ---
 
@@ -87,18 +87,21 @@ modern-lakehouse-architecture/
 │   └── gold/
 │
 ├── dbt/
-│   ├── models/
-│   │   ├── bronze/
-│   │   ├── silver/
-│   │   └── gold/
-│   └── tests/
+│   ├── lakehouse_project/
+│   │   ├── models/
+│   │   │   ├── bronze/
+│   │   │   ├── silver/
+│   │   │   └── gold/
+│   │   └── dbt_project.yml
+│   └── profiles.yml
 │
-├── docker/
-├── scripts/
-├── docs/
+├── Docker/
+├── Scripts/
+├── Docs/
 │   ├── architecture/
 │   └── decisions/
 │
+├── .github/workflows/
 ├── Makefile
 ├── docker-compose.yml
 └── README.md
@@ -149,7 +152,7 @@ Clear separation between raw, conformed, and business layers to ensure maintaina
 Raw data is landed first and transformed later using SQL models in dbt.
 
 ### Incremental Modeling
-Gold models are designed to support incremental loads and partition pruning.
+Gold models are designed to support incremental loads using `delete+insert` strategy (DuckDB-compatible).
 
 ### Partition Strategy
 Parquet files are partitioned by:
@@ -169,8 +172,9 @@ Docker guarantees deterministic local execution.
 
 ### Clean Git Discipline
 - Trunk-based development
+- Feature branches
 - Conventional commits
-- Architecture Decision Records (ADR)
+- CI validation on pull requests
 
 ---
 
@@ -185,10 +189,66 @@ The project simulates a SaaS analytics domain including:
 - Revenue Marts
 
 Designed to model:
+
 - Monthly Recurring Revenue (MRR)
-- Churn
-- Cohort retention
-- Subscription lifecycle analytics
+- Logo Churn
+- Net Revenue Retention (NRR)
+- Gross Revenue Retention (GRR)
+- Revenue Expansion & Contraction
+- Annual Recurring Revenue (ARR)
+- Cohort-based revenue retention
+
+---
+
+## Revenue Modeling
+
+### Account-Level Metrics (account_id × month)
+
+- MRR (source of truth)
+- NRR bridge components:
+  - starting_mrr
+  - new_logo_mrr
+  - reactivation_mrr
+  - expansion_mrr
+  - contraction_mrr
+  - churn_mrr
+  - ending_mrr_for_nrr
+  - nrr_ratio
+  - grr_ratio
+- ARR (ARR = MRR × 12)
+
+### Portfolio-Level Metrics (month)
+
+- Total ARR
+- Portfolio NRR
+- Portfolio GRR
+
+### Cohort Analytics (cohort_month × month)
+
+- Cohort-based NRR retention curves
+- Subscription lifecycle revenue analysis
+
+All revenue models:
+- Maintain explicit grain definitions
+- Use incremental delete+insert strategy
+- Are fully covered by dbt tests
+
+---
+
+## Continuous Integration
+
+The repository includes a GitHub Actions workflow that:
+
+- Builds the Docker image
+- Runs `dbt debug`
+- Executes `dbt build` (models + tests)
+- Uploads dbt artifacts for debugging
+
+This ensures:
+
+- Automated data quality gates on pull requests
+- Deterministic builds
+- Early failure detection
 
 ---
 
@@ -196,29 +256,11 @@ Designed to model:
 
 - Data Platform mindset
 - Production-grade repository structure
-- Governance and data quality awareness
-- Incremental modeling patterns
-- Cost-efficient architecture choices
-- Cloud migration readiness
-
----
-
-## Future Enhancements
-
-- CI/CD integration
-- Structured logging
-- Observability metrics
-- Data lineage graph
-- Unit testing ingestion layer
-- Object storage simulation (S3-style)
-
----
-
-## Interview Framing
-
-This project demonstrates the ability to design and implement a modular, containerized lakehouse architecture using medallion modeling principles, incremental transformations, and automated data quality enforcement.
-
-The focus is not just on building pipelines, but on structuring a maintainable and scalable analytics platform.
+- Governance and data quality enforcement
+- Incremental modeling patterns under adapter constraints
+- SaaS revenue modeling literacy
+- CI-based validation and reproducibility
+- Migration-ready architecture design
 
 ---
 
@@ -345,7 +387,7 @@ This architecture can evolve by:
 - Replacing DuckDB with a cloud warehouse
 - Moving Parquet storage to object storage (S3/GCS/Azure)
 - Adding orchestration (Airflow/Prefect)
-- Enabling CI/CD for automated deployments
 - Integrating observability tooling
+- Expanding CI/CD to include deployment workflows
 
 The repository is structured to allow these transitions with minimal redesign.
