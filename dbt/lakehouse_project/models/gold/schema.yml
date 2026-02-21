@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: gold_account_usage_daily
+    description: "Daily account usage mart (account_id x day)."
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_users')
+              field: account_id
+
+      - name: date
+        tests:
+          - not_null
+
+      - name: account_day_key
+        tests:
+          - not_null
+          - unique
+
+  - name: gold_account_engagement_monthly
+    description: "Monthly account engagement mart (account_id x month)."
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_users')
+              field: account_id
+
+      - name: month
+        tests:
+          - not_null
+
+      - name: account_month_key
+        tests:
+          - not_null
+          - unique

@@ -5,11 +5,10 @@ DEFAULT_DB_PATH = "/app/lakehouse/lakehouse.duckdb"
 
 def main():
     db_path = os.getenv("DUCKDB_PATH", DEFAULT_DB_PATH)
-
     con = duckdb.connect(db_path)
 
     rows = con.execute("""
-        select table_schema, table_type, table_name
+        select table_schema, table_type, table_name, row_count, null_count
         from information_schema.tables
         where table_schema not in ('information_schema', 'pg_catalog')
         order by table_schema, table_type, table_name
