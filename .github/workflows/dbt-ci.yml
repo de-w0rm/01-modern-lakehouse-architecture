@@ -20,6 +20,11 @@ jobs:
 
       - name: Build images
         run: docker compose build
+      
+      - name: Ensure lakehouse directory exists
+        run: >
+          docker compose run --rm -T lakehouse
+          sh -lc "mkdir -p /app/lakehouse && ls -la /app/lakehouse"
 
       - name: dbt debug
         run: >
@@ -27,6 +32,11 @@ jobs:
           dbt debug
           --project-dir /app/dbt/lakehouse_project
           --profiles-dir /app/dbt
+      
+      - name: Generate bronze data
+        run: >
+          docker compose run --rm -T lakehouse
+          python ingestion/generate_data.py
 
       - name: dbt build
         run: >
