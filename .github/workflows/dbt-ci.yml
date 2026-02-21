@@ -26,17 +26,17 @@ jobs:
           docker compose run --rm -T lakehouse
           sh -lc "mkdir -p /app/lakehouse && ls -la /app/lakehouse"
 
+      - name: Generate bronze data
+        run: >
+          docker compose run --rm -T lakehouse
+          python ingestion/generate_data.py
+
       - name: dbt debug
         run: >
           docker compose run --rm -T lakehouse
           dbt debug
           --project-dir /app/dbt/lakehouse_project
-          --profiles-dir /app/dbt
-      
-      - name: Generate bronze data
-        run: >
-          docker compose run --rm -T lakehouse
-          python ingestion/generate_data.py
+          --profiles-dir /app/dbt     
 
       - name: dbt build
         run: >
